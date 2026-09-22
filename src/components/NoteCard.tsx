@@ -10,7 +10,7 @@ cssInterop(Feather, { className: "style" });
 cssInterop(MaterialIcons, { className: "style" });
 
 export default function NoteCard({ note }: { note: INote }) {
-  const { editNote, deleteNote, markCompleted } = useNotesStore();
+  const { deleteNote, markCompleted } = useNotesStore();
 
   return (
     <View className="border border-gray-300 mt-8 rounded-3xl p-8">

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { INoteStore } from "./noted";
 
-export const useNotesStore = create<INoteStore>((set, get) => ({
+const useNotesStore = create<INoteStore>((set, get) => ({
   notes: [],
 
   addNote: (note) => {

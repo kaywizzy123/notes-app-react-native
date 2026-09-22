@@ -36,7 +36,7 @@ const HomeScreen = () => {
     }
 
     return result;
-  }, []);
+  }, [notes, searchText, selectedCategory]);
 
   const handleCategoryClick = (category: string) => {
     setSelectedCategory((prev) => (prev === category ? "" : category));
@@ -61,7 +61,8 @@ const HomeScreen = () => {
             />
           </View>
           <TextInput
-            className="relative bg-white border border-gray-300 h-14 rounded-full p-4 pl-12 w-full"
+            className="relative bg-white border border-gray-300 h-14 rounded-full py-0 px-4 pl-12 w-full"
+            style={{ textAlignVertical: "center" }}
             placeholder="Search your thoughts..."
             placeholderTextColor="#393e46"
             value={searchText}
