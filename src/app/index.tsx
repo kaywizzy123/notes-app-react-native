@@ -1,8 +1,10 @@
 import NoteCard from "@/components/NoteCard";
+import useNotesStore from "@/store/useNotes";
 import { CATEGORY } from "@/utils/constants";
 import { AntDesign } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   FlatList,
@@ -15,11 +17,29 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const HomeScreen = () => {
+  const router = useRouter();
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { notes } = useNotesStore();
+
+  const filteredNotes = useMemo(() => {
+    let result = notes;
+
+    if (selectedCategory) {
+      result = result.filter((note) => note.category === selectedCategory);
+    }
+
+    if (searchText.trim()) {
+      result = result.filter((note) =>
+        note.title.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()),
+      );
+    }
+
+    return result;
+  }, []);
 
   const handleCategoryClick = (category: string) => {
-    setSelectedCategory(category);
+    setSelectedCategory((prev) => (prev === category ? "" : category));
   };
 
   return (
@@ -97,47 +117,30 @@ const HomeScreen = () => {
             );
           })}
         </ScrollView>
-        <FlatList
-          data={[
-            {
-              id: "1",
-              title: "First Note",
-              description: "This is the first note",
-              date: new Date().toDateString(),
-              category: CATEGORY[2],
-              isCompleted: true,
-            },
-            {
-              id: "2",
-              title: "Second Note",
-              description: "This is the second note",
-              date: new Date().toDateString(),
-              category: CATEGORY[0],
-              isCompleted: false,
-            },
-            {
-              id: "3",
-              title: "Third Note",
-              description: "This is the third note",
-              date: new Date().toDateString(),
-              category: CATEGORY[2],
-              isCompleted: true,
-            },
-            {
-              id: "4",
-              title: "Fourth Note",
-              description: "This is the fourth note",
-              date: new Date().toDateString(),
-              category: CATEGORY[0],
-              isCompleted: false,
-            },
-          ]}
-          keyExtractor={(note) => note.id}
-          renderItem={({ item }) => <NoteCard note={item} />}
-          contentContainerStyle={{ paddingBottom: 100 }}
-          showsVerticalScrollIndicator={false}
-        />
-        <Pressable className="absolute -bottom-4 right-5 bg-governor-bay p-5 rounded-full shadow-2xl z-50">
+
+        {filteredNotes.length === 0 ? (
+          <View className="w-full items-center mt-16 justify-center">
+            <Text className="text-gray-500 font-medium text-2xl">
+              No notes yet
+            </Text>
+            <Text className="text-gray-400 text-lg mt-2">
+              Tap + to capture your thought
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={filteredNotes}
+            keyExtractor={(note) => note.id}
+            renderItem={({ item }) => <NoteCard note={item} />}
+            contentContainerStyle={{ paddingBottom: 100 }}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+
+        <Pressable
+          onPress={() => router.push("/add")}
+          className="absolute -bottom-4 right-5 bg-governor-bay p-5 rounded-full shadow-2xl z-50"
+        >
           <AntDesign name="plus" size={30} color="white" />
         </Pressable>
       </View>

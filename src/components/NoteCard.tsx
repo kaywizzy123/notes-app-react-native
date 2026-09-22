@@ -1,3 +1,4 @@
+import useNotesStore from "@/store/useNotes";
 import { INote } from "@/types/app.types";
 import { Entypo, Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { cssInterop } from "nativewind";
@@ -9,6 +10,8 @@ cssInterop(Feather, { className: "style" });
 cssInterop(MaterialIcons, { className: "style" });
 
 export default function NoteCard({ note }: { note: INote }) {
+  const { editNote, deleteNote, markCompleted } = useNotesStore();
+
   return (
     <View className="border border-gray-300 mt-8 rounded-3xl p-8">
       <View className="flex-row justify-between">
@@ -22,7 +25,7 @@ export default function NoteCard({ note }: { note: INote }) {
             className="text-governor-bay/60"
           />
         ) : (
-          <Pressable>
+          <Pressable onPress={() => markCompleted(note.id)}>
             <Entypo name="circle" size={24} className="text-gray-400" />
           </Pressable>
         )}
@@ -42,7 +45,7 @@ export default function NoteCard({ note }: { note: INote }) {
               className="text-governor-bay/40"
             />
           </Pressable>
-          <Pressable>
+          <Pressable onPress={() => deleteNote(note.id)}>
             <MaterialIcons
               name="delete-outline"
               size={24}
