@@ -1,8 +1,8 @@
 import useNotesStore from "@/store/useNotes";
 import { CATEGORY } from "@/utils/constants";
 import { formatDate } from "@/utils/date";
-import { Feather, FontAwesome } from "@expo/vector-icons";
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
+import { Feather, FontAwesome } from "@expo/vector-icons";
 import * as Crypto from "expo-crypto";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -29,6 +29,11 @@ export default function Add() {
 
   const handleAddNote = () => {
     if (!title.trim()) return;
+
+    if (!selectedCategory) {
+      Alert.alert("Category Required", "Please select a category for your note.");
+      return;
+    }
 
     addNote({
       id: Crypto.randomUUID(),
@@ -64,23 +69,26 @@ export default function Add() {
         value={description}
         onChangeText={setDescription}
         placeholderTextColor="#3830a35e"
+        multiline
+        textAlignVertical="top"
         className="text-2xl font-semibold mt-6"
       />
-      <View className="relative mt-64">
+      <View className="mt-64 flex-row items-center gap-2">
+        <Feather name="calendar" size={18} className="text-governor-bay" />
+        <Text className="text-base font-semibold text-gray-500">Date:</Text>
         {Platform.OS === "ios" ? (
-          <View className="rounded-3xl h-14 pl-11 justify-center bg-white shadow">
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display="compact"
-              onValueChange={(_, selectedDate) => setDate(selectedDate)}
-            />
-          </View>
+          <DateTimePicker
+            value={date}
+            mode="date"
+            display="compact"
+            style={{ width: 140, height: 32 }}
+            onValueChange={(_, selectedDate) => setDate(selectedDate)}
+          />
         ) : (
           <>
             <Pressable
               onPress={() => setShowDatePicker(true)}
-              className="rounded-3xl h-14 pl-11 justify-center bg-white shadow"
+              className="rounded-3xl h-14 px-4 justify-center bg-white shadow"
             >
               <Text className="text-xl text-black">{formatDate(date)}</Text>
             </Pressable>
@@ -97,14 +105,9 @@ export default function Add() {
             )}
           </>
         )}
-        <Feather
-          name="calendar"
-          size={16}
-          className="text-governor-bay absolute top-[1.3rem] left-4"
-        />
       </View>
 
-      <View className="bg-white shadow mt-8 rounded-xl p-5">
+      <View className="mt-8 rounded-xl p-5">
         <Text className="text-gray-400 font-semibold">CATEGORY</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row gap-2 mt-4 flex-wrap">
@@ -127,12 +130,14 @@ export default function Add() {
           </View>
         </ScrollView>
       </View>
-      <Pressable
-        className="bg-governor-bay w-full h-16 rounded-2xl mt-16 flex items-center justify-center"
-        onPress={handleAddNote}
-      >
-        <Text className="text-white text-xl font-medium">Add Note</Text>
-      </Pressable>
+      <View className="flex justify-center items-center">
+        <Pressable
+          className="bg-governor-bay w-3/4 h-16 rounded-full mt-4 flex items-center justify-center"
+          onPress={handleAddNote}
+        >
+          <Text className="text-white text-xl font-medium">Add Note</Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }

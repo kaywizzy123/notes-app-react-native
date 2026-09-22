@@ -24,10 +24,10 @@ const useNotesStore = create<INoteStore>((set, get) => ({
     }));
   },
 
-  markCompleted: (id: string) => {
+  toggleCompleted: (id: string) => {
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, isCompleted: true } : note,
+        note.id === id ? { ...note, isCompleted: !note.isCompleted } : note,
       ),
     }));
   },
