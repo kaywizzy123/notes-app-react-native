@@ -34,13 +34,22 @@ export default function NoteCard({ note }: { note: INote }) {
           <Feather name="calendar" size={16} className="text-gray-400" />
           <Text className="text-gray-400 font-medium">{note.date}</Text>
         </View>
-        <Pressable>
-          <MaterialIcons
-            name="delete-outline"
-            size={24}
-            className="text-red-400"
-          />
-        </Pressable>
+        <View className="flex-row gap-8">
+          <Pressable>
+            <MaterialIcons
+              name="edit"
+              size={24}
+              className="text-governor-bay/40"
+            />
+          </Pressable>
+          <Pressable>
+            <MaterialIcons
+              name="delete-outline"
+              size={24}
+              className="text-red-700/40"
+            />
+          </Pressable>
+        </View>
       </View>
     </View>
   );

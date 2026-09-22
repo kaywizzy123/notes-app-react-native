@@ -65,7 +65,7 @@ const HomeScreen = () => {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="min-h-12 max-h-12 mt-4"
+          className="min-h-12 max-h-12 mt-4 mb-1"
           contentContainerStyle={{
             flexDirection: "row",
             gap: 8,
@@ -111,6 +111,22 @@ const HomeScreen = () => {
               id: "2",
               title: "Second Note",
               description: "This is the second note",
+              date: new Date().toDateString(),
+              category: CATEGORY[0],
+              isCompleted: false,
+            },
+            {
+              id: "3",
+              title: "Third Note",
+              description: "This is the third note",
+              date: new Date().toDateString(),
+              category: CATEGORY[2],
+              isCompleted: true,
+            },
+            {
+              id: "4",
+              title: "Fourth Note",
+              description: "This is the fourth note",
               date: new Date().toDateString(),
               category: CATEGORY[0],
               isCompleted: false,
