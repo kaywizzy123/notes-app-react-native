@@ -1,6 +1,7 @@
 import useNotesStore from "@/store/useNotes";
 import { INote } from "@/types/app.types";
 import { Entypo, Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { cssInterop } from "nativewind";
 import { Pressable, Text, View } from "react-native";
 
@@ -10,6 +11,7 @@ cssInterop(Feather, { className: "style" });
 cssInterop(MaterialIcons, { className: "style" });
 
 export default function NoteCard({ note }: { note: INote }) {
+  const router = useRouter();
   const { deleteNote, markCompleted } = useNotesStore();
 
   return (
@@ -38,7 +40,14 @@ export default function NoteCard({ note }: { note: INote }) {
           <Text className="text-gray-400 font-medium">{note.date}</Text>
         </View>
         <View className="flex-row gap-8">
-          <Pressable>
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: "/edit/[id]",
+                params: { id: note.id },
+              })
+            }
+          >
             <MaterialIcons
               name="edit"
               size={24}

@@ -1,10 +1,9 @@
 import useNotesStore from "@/store/useNotes";
 import { CATEGORY } from "@/utils/constants";
-import { formatDate } from "@/utils/date";
+import { formatDate, parseDate } from "@/utils/date";
 import { Feather, FontAwesome } from "@expo/vector-icons";
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
-import * as Crypto from "expo-crypto";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
@@ -17,31 +16,48 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Add() {
+export default function Edit() {
   const router = useRouter();
-  const { addNote } = useNotesStore();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { notes, editNote } = useNotesStore();
+  const note = notes.find((n) => n.id === id);
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState(() => new Date());
+  const [title, setTitle] = useState(note?.title ?? "");
+  const [description, setDescription] = useState(note?.description ?? "");
+  const [date, setDate] = useState(() => parseDate(note?.date));
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(
+    note?.category ?? "",
+  );
 
-  const handleAddNote = () => {
-    if (!title.trim()) return;
+  const handleSaveNote = () => {
+    if (!title.trim() || !note) return;
 
-    addNote({
-      id: Crypto.randomUUID(),
+    editNote(note.id, {
       title,
       description,
       category: selectedCategory,
       date: formatDate(date),
-      isCompleted: false,
     });
-    Alert.alert("Success", "Note Added Successfully.", [
+    Alert.alert("Success", "Note Updated Successfully.", [
       { text: "Done", style: "cancel", onPress: () => router.back() },
     ]);
   };
+
+  if (!note) {
+    return (
+      <SafeAreaView className="flex-1 p-4 bg-alabaster">
+        <Pressable
+          onPress={() => router.back()}
+          className="flex-row items-center gap-2"
+        >
+          <FontAwesome name="chevron-left" size={18} color="black" />
+          <Text>Back</Text>
+        </Pressable>
+        <Text className="text-xl text-gray-500 mt-8">Note not found.</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 p-4 bg-alabaster">
@@ -129,9 +145,9 @@ export default function Add() {
       </View>
       <Pressable
         className="bg-governor-bay w-full h-16 rounded-2xl mt-16 flex items-center justify-center"
-        onPress={handleAddNote}
+        onPress={handleSaveNote}
       >
-        <Text className="text-white text-xl font-medium">Add Note</Text>
+        <Text className="text-white text-xl font-medium">Save Changes</Text>
       </Pressable>
     </SafeAreaView>
   );
