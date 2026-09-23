@@ -1,13 +1,15 @@
 import NoteCard from "@/components/NoteCard";
 import useNotesStore from "@/store/useNotes";
 import { CATEGORY } from "@/utils/constants";
-import { AntDesign } from "@expo/vector-icons";
+import { formatDate, getDueStatus } from "@/utils/date";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useMemo, useState } from "react";
 
 import {
   FlatList,
+  Modal,
   Pressable,
   ScrollView,
   Text,
@@ -16,11 +18,22 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+type SortOrder = "asc" | "desc" | null;
+
+const SORT_OPTIONS: { label: string; value: SortOrder }[] = [
+  { label: "Latest due date", value: "desc" },
+  { label: "Earliest due date", value: "asc" },
+];
+
 const HomeScreen = () => {
   const router = useRouter();
   const [searchText, setSearchText] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>(null);
+  const [showOverdueOnly, setShowOverdueOnly] = useState(false);
+  const [showSortMenu, setShowSortMenu] = useState(false);
   const { notes } = useNotesStore();
+  const isFilterActive = Boolean(sortOrder) || showOverdueOnly;
 
   const filteredNotes = useMemo(() => {
     let result = notes;
@@ -30,13 +43,27 @@ const HomeScreen = () => {
     }
 
     if (searchText.trim()) {
-      result = result.filter((note) =>
-        note.title.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()),
+      const query = searchText.toLocaleLowerCase();
+      result = result.filter(
+        (note) =>
+          note.title.toLocaleLowerCase().includes(query) ||
+          formatDate(new Date(note.dueDate)).toLocaleLowerCase().includes(query),
       );
     }
 
+    if (showOverdueOnly) {
+      result = result.filter((note) => getDueStatus(note.dueDate) === "overdue");
+    }
+
+    if (sortOrder) {
+      result = [...result].sort((a, b) => {
+        const diff = a.dueDate - b.dueDate;
+        return sortOrder === "asc" ? diff : -diff;
+      });
+    }
+
     return result;
-  }, [notes, searchText, selectedCategory]);
+  }, [notes, searchText, selectedCategory, sortOrder, showOverdueOnly]);
 
   const handleCategoryClick = (category: string) => {
     setSelectedCategory((prev) => (prev === category ? "" : category));
@@ -45,44 +72,144 @@ const HomeScreen = () => {
   return (
     <SafeAreaView className="flex-1 p-4 bg-alabaster">
       <View className="flex-1 relative">
-        <View>
-          <View
-            pointerEvents="none"
-            style={{ position: "absolute", left: 16, top: 17, zIndex: 1 }}
+        <View className="flex-row items-center gap-2">
+          <View className="flex-1 relative">
+            <View
+              pointerEvents="none"
+              style={{ position: "absolute", left: 16, top: 17, zIndex: 1 }}
+            >
+              <SymbolView
+                name={{
+                  ios: "magnifyingglass",
+                  android: "search",
+                  web: "search",
+                }}
+                size={20}
+                tintColor="#393e46"
+              />
+            </View>
+            <TextInput
+              className="relative bg-white border border-gray-300 h-14 rounded-full py-0 px-4 pl-12 w-full"
+              style={{ textAlignVertical: "center" }}
+              placeholder="Search your thoughts..."
+              placeholderTextColor="#393e46"
+              value={searchText}
+              onChangeText={setSearchText}
+            />
+            {searchText !== "" && (
+              <Pressable
+                onPress={() => setSearchText("")}
+                accessibilityRole="button"
+                accessibilityLabel="Cancel"
+                style={{ position: "absolute", right: 16, top: 17 }}
+              >
+                <SymbolView
+                  name={{ ios: "xmark.circle", android: "cancel", web: "cancel" }}
+                  size={20}
+                  tintColor="#3830a3"
+                />
+              </Pressable>
+            )}
+          </View>
+          <Pressable
+            onPress={() => setShowSortMenu(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Filter by due date"
+            className={`h-14 w-14 items-center justify-center rounded-full border ${
+              isFilterActive
+                ? "bg-governor-bay border-governor-bay"
+                : "bg-white border-gray-300"
+            }`}
           >
             <SymbolView
               name={{
-                ios: "magnifyingglass",
-                android: "search",
-                web: "search",
+                ios: "line.3.horizontal.decrease.circle",
+                android: "filter_list",
+                web: "filter_list",
               }}
               size={20}
-              tintColor="#393e46"
+              tintColor={isFilterActive ? "#ffffff" : "#393e46"}
             />
-          </View>
-          <TextInput
-            className="relative bg-white border border-gray-300 h-14 rounded-full py-0 px-4 pl-12 w-full"
-            style={{ textAlignVertical: "center" }}
-            placeholder="Search your thoughts..."
-            placeholderTextColor="#393e46"
-            value={searchText}
-            onChangeText={setSearchText}
-          />
-          {searchText !== "" && (
-            <Pressable
-              onPress={() => setSearchText("")}
-              accessibilityRole="button"
-              accessibilityLabel="Cancel"
-              style={{ position: "absolute", right: 16, top: 17 }}
-            >
-              <SymbolView
-                name={{ ios: "xmark.circle", android: "cancel", web: "cancel" }}
-                size={20}
-                tintColor="#3830a3"
-              />
-            </Pressable>
-          )}
+          </Pressable>
         </View>
+
+        <Modal
+          visible={showSortMenu}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowSortMenu(false)}
+        >
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() => setShowSortMenu(false)}
+          >
+            <View
+              className="absolute bg-white rounded-2xl border border-gray-300"
+              style={{ top: 130, right: 20, width: 200, overflow: "hidden" }}
+            >
+              <Pressable
+                onPress={() => {
+                  setShowOverdueOnly((prev) => !prev);
+                  setShowSortMenu(false);
+                }}
+                className="px-4 py-3 flex-row justify-between items-center"
+              >
+                <Text
+                  className={
+                    showOverdueOnly
+                      ? "text-governor-bay font-semibold"
+                      : "text-gray-700"
+                  }
+                >
+                  Overdue only
+                </Text>
+                {showOverdueOnly && (
+                  <Ionicons name="checkmark" size={18} color="#3830a3" />
+                )}
+              </Pressable>
+              {SORT_OPTIONS.map((option) => {
+                const isSelected = sortOrder === option.value;
+                return (
+                  <Pressable
+                    key={option.value}
+                    onPress={() => {
+                      setSortOrder((prev) =>
+                        prev === option.value ? null : option.value,
+                      );
+                      setShowSortMenu(false);
+                    }}
+                    className="px-4 py-3 flex-row justify-between items-center border-t border-gray-200"
+                  >
+                    <Text
+                      className={
+                        isSelected
+                          ? "text-governor-bay font-semibold"
+                          : "text-gray-700"
+                      }
+                    >
+                      {option.label}
+                    </Text>
+                    {isSelected && (
+                      <Ionicons name="checkmark" size={18} color="#3830a3" />
+                    )}
+                  </Pressable>
+                );
+              })}
+              {isFilterActive && (
+                <Pressable
+                  onPress={() => {
+                    setSortOrder(null);
+                    setShowOverdueOnly(false);
+                    setShowSortMenu(false);
+                  }}
+                  className="px-4 py-3 border-t border-gray-200"
+                >
+                  <Text className="text-red-600">Clear filters</Text>
+                </Pressable>
+              )}
+            </View>
+          </Pressable>
+        </Modal>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}

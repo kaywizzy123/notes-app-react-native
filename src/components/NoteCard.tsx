@@ -1,5 +1,6 @@
 import useNotesStore from "@/store/useNotes";
 import { INote } from "@/types/app.types";
+import { formatDate, getDueStatus } from "@/utils/date";
 import { Entypo, Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { cssInterop } from "nativewind";
@@ -10,9 +11,19 @@ cssInterop(Entypo, { className: "style" });
 cssInterop(Feather, { className: "style" });
 cssInterop(MaterialIcons, { className: "style" });
 
+const DUE_STATUS_CLASSES = {
+  overdue: "text-red-600",
+  today: "text-yellow-600",
+  upcoming: "text-gray-400",
+} as const;
+
 export default function NoteCard({ note }: { note: INote }) {
   const router = useRouter();
   const { deleteNote, toggleCompleted } = useNotesStore();
+  const dueStatus = getDueStatus(note.dueDate);
+  const dueStatusClass = DUE_STATUS_CLASSES[dueStatus];
+  const dueLabel =
+    dueStatus === "overdue" ? "Overdue" : dueStatus === "today" ? "Due Today" : "Due";
 
   const handleDelete = () => {
     Alert.alert(
@@ -51,8 +62,12 @@ export default function NoteCard({ note }: { note: INote }) {
       <Text className="mt-6 text-xl text-gray-700">{note.description}</Text>
       <View className="mt-8 flex-row justify-between">
         <View className="flex-row gap-2">
-          <Feather name="calendar" size={16} className="text-gray-400" />
-          <Text className="text-gray-400 font-medium">{note.date}</Text>
+          <Feather name="calendar" size={16} className={dueStatusClass} />
+          <Text className={`font-medium ${dueStatusClass}`}>
+            {dueStatus === "today"
+              ? dueLabel
+              : `${dueLabel}: ${formatDate(new Date(note.dueDate))}`}
+          </Text>
         </View>
         <View className="flex-row gap-4">
           <Pressable

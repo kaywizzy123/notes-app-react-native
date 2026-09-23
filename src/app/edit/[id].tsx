@@ -1,6 +1,6 @@
 import useNotesStore from "@/store/useNotes";
 import { CATEGORY } from "@/utils/constants";
-import { formatDate, parseDate } from "@/utils/date";
+import { formatDate } from "@/utils/date";
 import { Feather, FontAwesome } from "@expo/vector-icons";
 import { DateTimePicker } from "@expo/ui/community/datetime-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -24,7 +24,9 @@ export default function Edit() {
 
   const [title, setTitle] = useState(note?.title ?? "");
   const [description, setDescription] = useState(note?.description ?? "");
-  const [date, setDate] = useState(() => parseDate(note?.date));
+  const [dueDate, setDueDate] = useState(() =>
+    note?.dueDate ? new Date(note.dueDate) : new Date(),
+  );
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(
     note?.category ?? "",
@@ -42,7 +44,7 @@ export default function Edit() {
       title,
       description,
       category: selectedCategory,
-      date: formatDate(date),
+      dueDate: dueDate.getTime(),
     });
     Alert.alert("Success", "Note Updated Successfully.", [
       { text: "Done", style: "cancel", onPress: () => router.back() },
@@ -91,14 +93,14 @@ export default function Edit() {
       />
       <View className="mt-64 flex-row items-center gap-2">
         <Feather name="calendar" size={18} className="text-governor-bay" />
-        <Text className="text-base font-semibold text-gray-500">Date:</Text>
+        <Text className="text-base font-semibold text-gray-500">Due:</Text>
         {Platform.OS === "ios" ? (
           <DateTimePicker
-            value={date}
+            value={dueDate}
             mode="date"
             display="compact"
             style={{ width: 140, height: 32 }}
-            onValueChange={(_, selectedDate) => setDate(selectedDate)}
+            onValueChange={(_, selectedDate) => setDueDate(selectedDate)}
           />
         ) : (
           <>
@@ -106,15 +108,15 @@ export default function Edit() {
               onPress={() => setShowDatePicker(true)}
               className="rounded-3xl h-14 px-4 justify-center bg-white shadow"
             >
-              <Text className="text-xl text-black">{formatDate(date)}</Text>
+              <Text className="text-xl text-black">{formatDate(dueDate)}</Text>
             </Pressable>
             {showDatePicker && (
               <DateTimePicker
-                value={date}
+                value={dueDate}
                 mode="date"
                 onValueChange={(_, selectedDate) => {
                   setShowDatePicker(false);
-                  setDate(selectedDate);
+                  setDueDate(selectedDate);
                 }}
                 onDismiss={() => setShowDatePicker(false)}
               />

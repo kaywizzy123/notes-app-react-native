@@ -23,7 +23,7 @@ export default function Add() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState(() => new Date());
+  const [dueDate, setDueDate] = useState(() => new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
 
@@ -40,7 +40,8 @@ export default function Add() {
       title,
       description,
       category: selectedCategory,
-      date: formatDate(date),
+      dueDate: dueDate.getTime(),
+      timestamp: Date.now(),
       isCompleted: false,
     });
     Alert.alert("Success", "Note Added Successfully.", [
@@ -75,14 +76,14 @@ export default function Add() {
       />
       <View className="mt-64 flex-row items-center gap-2">
         <Feather name="calendar" size={18} className="text-governor-bay" />
-        <Text className="text-base font-semibold text-gray-500">Date:</Text>
+        <Text className="text-base font-semibold text-gray-500">Due:</Text>
         {Platform.OS === "ios" ? (
           <DateTimePicker
-            value={date}
+            value={dueDate}
             mode="date"
             display="compact"
             style={{ width: 140, height: 32 }}
-            onValueChange={(_, selectedDate) => setDate(selectedDate)}
+            onValueChange={(_, selectedDate) => setDueDate(selectedDate)}
           />
         ) : (
           <>
@@ -90,15 +91,15 @@ export default function Add() {
               onPress={() => setShowDatePicker(true)}
               className="rounded-3xl h-14 px-4 justify-center bg-white shadow"
             >
-              <Text className="text-xl text-black">{formatDate(date)}</Text>
+              <Text className="text-xl text-black">{formatDate(dueDate)}</Text>
             </Pressable>
             {showDatePicker && (
               <DateTimePicker
-                value={date}
+                value={dueDate}
                 mode="date"
                 onValueChange={(_, selectedDate) => {
                   setShowDatePicker(false);
-                  setDate(selectedDate);
+                  setDueDate(selectedDate);
                 }}
                 onDismiss={() => setShowDatePicker(false)}
               />
