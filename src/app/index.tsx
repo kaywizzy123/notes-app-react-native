@@ -50,12 +50,16 @@ const HomeScreen = () => {
       result = result.filter(
         (note) =>
           note.title.toLocaleLowerCase().includes(query) ||
-          formatDate(new Date(note.dueDate)).toLocaleLowerCase().includes(query),
+          formatDate(new Date(note.dueDate))
+            .toLocaleLowerCase()
+            .includes(query),
       );
     }
 
     if (showOverdueOnly) {
-      result = result.filter((note) => getDueStatus(note.dueDate) === "overdue");
+      result = result.filter(
+        (note) => getDueStatus(note.dueDate) === "overdue",
+      );
     }
 
     if (sortOrder) {
@@ -73,7 +77,10 @@ const HomeScreen = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 p-4 bg-alabaster dark:bg-neutral-900">
+    <SafeAreaView
+      className="flex-1 p-4 bg-alabaster dark:bg-neutral-900"
+      edges={["top", "left", "right"]}
+    >
       <View className="flex-1 relative">
         <View className="flex-row items-center gap-2">
           <View className="flex-1 relative">
@@ -107,7 +114,11 @@ const HomeScreen = () => {
                 style={{ position: "absolute", right: 16, top: 17 }}
               >
                 <SymbolView
-                  name={{ ios: "xmark.circle", android: "cancel", web: "cancel" }}
+                  name={{
+                    ios: "xmark.circle",
+                    android: "cancel",
+                    web: "cancel",
+                  }}
                   size={20}
                   tintColor={isDark ? "#818cf8" : "#3830a3"}
                 />
@@ -144,10 +155,7 @@ const HomeScreen = () => {
           animationType="fade"
           onRequestClose={() => setShowSortMenu(false)}
         >
-          <Pressable
-            style={{ flex: 1 }}
-            onPress={() => setShowSortMenu(false)}
-          >
+          <Pressable style={{ flex: 1 }} onPress={() => setShowSortMenu(false)}>
             <View
               className="absolute bg-white rounded-2xl border border-gray-300 dark:bg-neutral-800 dark:border-neutral-700"
               style={{ top: 130, right: 20, width: 200, overflow: "hidden" }}
@@ -294,7 +302,7 @@ const HomeScreen = () => {
 
         <Pressable
           onPress={() => router.push("/add")}
-          className="absolute -bottom-4 right-5 bg-governor-bay p-5 rounded-full shadow-2xl z-50"
+          className="absolute bottom-4 right-5 bg-governor-bay p-5 rounded-full shadow-2xl z-50"
         >
           <AntDesign name="plus" size={30} color="white" />
         </Pressable>
