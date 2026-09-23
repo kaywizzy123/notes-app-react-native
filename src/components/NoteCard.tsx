@@ -12,8 +12,8 @@ cssInterop(Feather, { className: "style" });
 cssInterop(MaterialIcons, { className: "style" });
 
 const DUE_STATUS_CLASSES = {
-  overdue: "text-red-600",
-  today: "text-yellow-600",
+  overdue: "text-red-600 dark:text-red-400",
+  today: "text-yellow-600 dark:text-yellow-400",
   upcoming: "text-gray-400",
 } as const;
 
@@ -41,9 +41,9 @@ export default function NoteCard({ note }: { note: INote }) {
   };
 
   return (
-    <View className="border border-gray-300 mt-8 rounded-3xl p-8">
+    <View className="border border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 mt-8 rounded-3xl p-8">
       <View className="flex-row justify-between">
-        <Text className="bg-governor-bay/15 text-governor-bay/90 font-semibold rounded-xl px-4 py-2">
+        <Text className="bg-governor-bay/15 text-governor-bay/90 dark:bg-governor-bay-light/15 dark:text-governor-bay-light font-semibold rounded-xl px-4 py-2">
           {note.category.toUpperCase()}
         </Text>
         <Pressable onPress={() => toggleCompleted(note.id)}>
@@ -51,15 +51,19 @@ export default function NoteCard({ note }: { note: INote }) {
             <Ionicons
               name="checkmark-circle-sharp"
               size={28}
-              className="text-governor-bay/60"
+              className="text-governor-bay/60 dark:text-governor-bay-light/70"
             />
           ) : (
             <Entypo name="circle" size={24} className="text-gray-400" />
           )}
         </Pressable>
       </View>
-      <Text className="mt-6 text-2xl">{note.title}</Text>
-      <Text className="mt-6 text-xl text-gray-700">{note.description}</Text>
+      <Text className="mt-6 text-2xl text-black dark:text-white">
+        {note.title}
+      </Text>
+      <Text className="mt-6 text-xl text-gray-700 dark:text-neutral-300">
+        {note.description}
+      </Text>
       <View className="mt-8 flex-row justify-between">
         <View className="flex-row gap-2">
           <Feather name="calendar" size={16} className={dueStatusClass} />
@@ -81,14 +85,14 @@ export default function NoteCard({ note }: { note: INote }) {
             <MaterialIcons
               name="edit"
               size={24}
-              className="text-governor-bay/40"
+              className="text-governor-bay/40 dark:text-governor-bay-light/50"
             />
           </Pressable>
           <Pressable onPress={handleDelete}>
             <MaterialIcons
               name="delete-outline"
               size={24}
-              className="text-red-700/40"
+              className="text-red-700/40 dark:text-red-400/50"
             />
           </Pressable>
         </View>

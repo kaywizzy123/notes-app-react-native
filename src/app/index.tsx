@@ -5,6 +5,7 @@ import { formatDate, getDueStatus } from "@/utils/date";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
+import { useColorScheme } from "nativewind";
 import { useMemo, useState } from "react";
 
 import {
@@ -33,6 +34,8 @@ const HomeScreen = () => {
   const [showOverdueOnly, setShowOverdueOnly] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const { notes } = useNotesStore();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
   const isFilterActive = Boolean(sortOrder) || showOverdueOnly;
 
   const filteredNotes = useMemo(() => {
@@ -70,7 +73,7 @@ const HomeScreen = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 p-4 bg-alabaster">
+    <SafeAreaView className="flex-1 p-4 bg-alabaster dark:bg-neutral-900">
       <View className="flex-1 relative">
         <View className="flex-row items-center gap-2">
           <View className="flex-1 relative">
@@ -85,14 +88,14 @@ const HomeScreen = () => {
                   web: "search",
                 }}
                 size={20}
-                tintColor="#393e46"
+                tintColor={isDark ? "#9ca3af" : "#393e46"}
               />
             </View>
             <TextInput
-              className="relative bg-white border border-gray-300 h-14 rounded-full py-0 px-4 pl-12 w-full"
+              className="relative bg-white border border-gray-300 h-14 rounded-full py-0 px-4 pl-12 w-full dark:bg-neutral-800 dark:border-neutral-700 dark:text-white"
               style={{ textAlignVertical: "center" }}
               placeholder="Search your thoughts..."
-              placeholderTextColor="#393e46"
+              placeholderTextColor={isDark ? "#737373" : "#393e46"}
               value={searchText}
               onChangeText={setSearchText}
             />
@@ -106,7 +109,7 @@ const HomeScreen = () => {
                 <SymbolView
                   name={{ ios: "xmark.circle", android: "cancel", web: "cancel" }}
                   size={20}
-                  tintColor="#3830a3"
+                  tintColor={isDark ? "#818cf8" : "#3830a3"}
                 />
               </Pressable>
             )}
@@ -118,7 +121,7 @@ const HomeScreen = () => {
             className={`h-14 w-14 items-center justify-center rounded-full border ${
               isFilterActive
                 ? "bg-governor-bay border-governor-bay"
-                : "bg-white border-gray-300"
+                : "bg-white border-gray-300 dark:bg-neutral-800 dark:border-neutral-700"
             }`}
           >
             <SymbolView
@@ -128,7 +131,9 @@ const HomeScreen = () => {
                 web: "filter_list",
               }}
               size={20}
-              tintColor={isFilterActive ? "#ffffff" : "#393e46"}
+              tintColor={
+                isFilterActive ? "#ffffff" : isDark ? "#9ca3af" : "#393e46"
+              }
             />
           </Pressable>
         </View>
@@ -144,7 +149,7 @@ const HomeScreen = () => {
             onPress={() => setShowSortMenu(false)}
           >
             <View
-              className="absolute bg-white rounded-2xl border border-gray-300"
+              className="absolute bg-white rounded-2xl border border-gray-300 dark:bg-neutral-800 dark:border-neutral-700"
               style={{ top: 130, right: 20, width: 200, overflow: "hidden" }}
             >
               <Pressable
@@ -157,14 +162,18 @@ const HomeScreen = () => {
                 <Text
                   className={
                     showOverdueOnly
-                      ? "text-governor-bay font-semibold"
-                      : "text-gray-700"
+                      ? "text-governor-bay dark:text-governor-bay-light font-semibold"
+                      : "text-gray-700 dark:text-neutral-300"
                   }
                 >
                   Overdue only
                 </Text>
                 {showOverdueOnly && (
-                  <Ionicons name="checkmark" size={18} color="#3830a3" />
+                  <Ionicons
+                    name="checkmark"
+                    size={18}
+                    color={isDark ? "#818cf8" : "#3830a3"}
+                  />
                 )}
               </Pressable>
               {SORT_OPTIONS.map((option) => {
@@ -178,19 +187,23 @@ const HomeScreen = () => {
                       );
                       setShowSortMenu(false);
                     }}
-                    className="px-4 py-3 flex-row justify-between items-center border-t border-gray-200"
+                    className="px-4 py-3 flex-row justify-between items-center border-t border-gray-200 dark:border-neutral-700"
                   >
                     <Text
                       className={
                         isSelected
-                          ? "text-governor-bay font-semibold"
-                          : "text-gray-700"
+                          ? "text-governor-bay dark:text-governor-bay-light font-semibold"
+                          : "text-gray-700 dark:text-neutral-300"
                       }
                     >
                       {option.label}
                     </Text>
                     {isSelected && (
-                      <Ionicons name="checkmark" size={18} color="#3830a3" />
+                      <Ionicons
+                        name="checkmark"
+                        size={18}
+                        color={isDark ? "#818cf8" : "#3830a3"}
+                      />
                     )}
                   </Pressable>
                 );
@@ -202,9 +215,11 @@ const HomeScreen = () => {
                     setShowOverdueOnly(false);
                     setShowSortMenu(false);
                   }}
-                  className="px-4 py-3 border-t border-gray-200"
+                  className="px-4 py-3 border-t border-gray-200 dark:border-neutral-700"
                 >
-                  <Text className="text-red-600">Clear filters</Text>
+                  <Text className="text-red-600 dark:text-red-400">
+                    Clear filters
+                  </Text>
                 </Pressable>
               )}
             </View>
@@ -231,13 +246,25 @@ const HomeScreen = () => {
                   paddingVertical: 10,
                   paddingHorizontal: 28,
                   borderRadius: 999,
-                  backgroundColor: isSelected ? "#3830a3" : "#fff",
+                  backgroundColor: isSelected
+                    ? "#3830a3"
+                    : isDark
+                      ? "#262626"
+                      : "#fff",
                   borderWidth: 0.5,
-                  borderColor: isSelected ? "#3830a3" : "#d1d5db",
+                  borderColor: isSelected
+                    ? "#3830a3"
+                    : isDark
+                      ? "#404040"
+                      : "#d1d5db",
                 }}
               >
                 <Text
-                  className={`text-sm ${isSelected ? "text-white" : "#4b5563"}`}
+                  className={`text-sm ${
+                    isSelected
+                      ? "text-white"
+                      : "text-gray-600 dark:text-neutral-300"
+                  }`}
                 >
                   {item}
                 </Text>
@@ -248,10 +275,10 @@ const HomeScreen = () => {
 
         {filteredNotes.length === 0 ? (
           <View className="w-full items-center mt-16 justify-center">
-            <Text className="text-gray-500 font-medium text-2xl">
+            <Text className="text-gray-500 dark:text-neutral-400 font-medium text-2xl">
               No notes yet
             </Text>
-            <Text className="text-gray-400 text-lg mt-2">
+            <Text className="text-gray-400 dark:text-neutral-500 text-lg mt-2">
               Tap + to capture your thought
             </Text>
           </View>
